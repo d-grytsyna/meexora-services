@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: meexora-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: meexora_auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+
+#  auth-service:
+#    build:
+#      context: ./auth-service
+#    container_name: meexora-auth
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - postgres
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meexora_auth
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: password
+#    networks:
+#      - default
+
+volumes:
+  pgdata:
