@@ -1,0 +1,30 @@
+# Maven
+/target/
+/**/target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+application-dev.yml
+application-local.yml
+
+# Build
+.build/
+.gradle/
+out/
+
+# Docker
+*.pid
+**/.env
+docker-compose.override.yml
