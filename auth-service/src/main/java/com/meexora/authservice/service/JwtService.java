@@ -1,93 +1,69 @@
 package com.meexora.authservice.service;
 
 import com.meexora.authservice.model.User;
+import com.meexora.authservice.utils.JwtUtils;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class JwtService {
 
-    private Key secretKey;
+    @Value("${jwt.access-token-expiration-ms}")
+    private long accessTokenExpiration;
 
-    private final String SECRET = "super-secret-key-that-should-be-very-long-change-this";
+    @Value("${jwt.refresh-token-expiration-ms}")
+    private long refreshTokenExpiration;
 
-    private final long EXPIRATION_MS = 1000 * 60 * 60 * 24;
+    @Qualifier("jwtPrivateKey")
+    private final Key privateKey;
 
-    @PostConstruct
-    public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(SECRET.getBytes());
+    public String generateAccessToken(User user) {
+        return buildToken(user, accessTokenExpiration);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        if (!username.equals(userDetails.getUsername()) || isTokenExpired(token)) {
-            return false;
-        }
-
-        Instant tokenPwdTime = extractPasswordUpdatedAt(token);
-        Instant actualPwdTime = ((User) userDetails).getPasswordUpdatedAt();
-
-        return tokenPwdTime.equals(actualPwdTime);
+    public String generateRefreshToken(User user) {
+        return buildToken(user, refreshTokenExpiration);
     }
 
+    private String buildToken(User user, long expirationMillis) {
+        Instant now = Instant.now();
 
-    public String generateToken(UserDetails userDetails) {
-        User user = (User) userDetails;
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(user.getId().toString())
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusMillis(expirationMillis)));
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("pwd_updated", user.getPasswordUpdatedAt().toString());
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+        return builder
+                .signWith(privateKey, SignatureAlgorithm.RS256)
                 .compact();
     }
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public boolean isValid(String token) {
+        return JwtUtils.isValid(token, privateKey);
     }
 
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public String getSubject(String token) {
+        return JwtUtils.getSubject(token, privateKey);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        final Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return resolver.apply(claims);
-    }
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Instant getIssuedAt(String token) {
+        return JwtUtils.getIssuedAt(token, privateKey);
     }
 
-    private Instant extractPasswordUpdatedAt(String token) {
-        Claims claims = extractAllClaims(token);
-        String timeStr = (String) claims.get("pwd_updated");
-        return Instant.parse(timeStr);
+    public Instant getExpiration(String token) {
+        return JwtUtils.getExpiration(token, privateKey);
     }
 
+    public Instant getStatusUpdatedClaim(String token) {
+        return JwtUtils.getStatusUpdatedClaim(token, privateKey);
+    }
 }
+

@@ -33,8 +33,8 @@ public class User implements UserDetails {
 
     private Instant createdAt;
 
-    @Column(name = "password_updated_at")
-    private Instant passwordUpdatedAt;
+    @Column(name = "status_updated_at")
+    private Instant statusUpdatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

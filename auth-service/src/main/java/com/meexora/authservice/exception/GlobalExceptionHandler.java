@@ -1,5 +1,6 @@
 package com.meexora.authservice.exception;
 import com.meexora.common.exception.BadRequestException;
+import com.meexora.common.exception.UnauthorizedException;
 import com.meexora.common.exception.UserNotFoundException;
 import com.meexora.common.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,10 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password");
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(

@@ -28,3 +28,6 @@ out/
 *.pid
 **/.env
 docker-compose.override.yml
+
+# Ignore private RSA key used by auth-service
+auth-service/src/main/resources/keys/private.key

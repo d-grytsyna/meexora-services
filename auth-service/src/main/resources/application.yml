@@ -23,3 +23,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+jwt:
+  access-token-expiration-ms: 600000        # 10 хвилин
+  refresh-token-expiration-ms: 604800000    # 7 днів
