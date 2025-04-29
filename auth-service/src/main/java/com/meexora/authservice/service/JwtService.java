@@ -66,4 +66,3 @@ public class JwtService {
         return JwtUtils.getStatusUpdatedClaim(token, privateKey);
     }
 }
-

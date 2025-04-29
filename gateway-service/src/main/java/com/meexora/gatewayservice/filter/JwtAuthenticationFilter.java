@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meexora.gatewayservice.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -59,6 +58,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     private boolean isWhitelisted(String path) {
         return path.equals("/auth/login")
                 || path.equals("/auth/register")
+                || path.equals("/auth/registration")
+                || path.equals("/auth/password-reset/request")
+                || path.equals("/auth/password-reset/confirm")
                 || path.equals("/auth/refresh");
     }
 

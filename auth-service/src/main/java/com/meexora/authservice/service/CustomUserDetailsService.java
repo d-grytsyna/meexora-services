@@ -2,7 +2,7 @@ package com.meexora.authservice.service;
 
 import com.meexora.authservice.model.User;
 import com.meexora.authservice.repository.UserRepository;
-import com.meexora.common.exception.UserNotFoundException;
+import com.meexora.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' not found"));
+                .orElseThrow(() -> new NotFoundException("User with email '" + email + "' not found"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

@@ -15,6 +15,7 @@
         <module>meexora-common</module>
         <module>gateway-service</module>
         <module>discovery-service</module>
+        <module>email-service</module>
     </modules>
 
     <properties>
@@ -49,8 +50,16 @@
                     <version>3.11.0</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>1.18.30</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
+
             </plugins>
         </pluginManagement>
     </build>

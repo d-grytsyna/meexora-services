@@ -1,15 +1,19 @@
 package com.meexora.authservice.service;
 
+import com.meexora.authservice.dto.request.AccountModificationRequest;
 import com.meexora.authservice.dto.request.AuthRequest;
+import com.meexora.authservice.dto.request.PasswordResetRequest;
 import com.meexora.authservice.dto.response.AuthResponse;
-import com.meexora.authservice.dto.request.RegisterRequest;
+import com.meexora.authservice.exception.EmailRequestRateLimitException;
+import com.meexora.authservice.kafka.ForgotPasswordEventProducer;
 import com.meexora.authservice.model.Role;
 import com.meexora.authservice.model.User;
-import com.meexora.authservice.repository.RoleRepository;
 import com.meexora.authservice.repository.UserRepository;
+import com.meexora.authservice.utils.VerificationCodeGenerator;
 import com.meexora.common.exception.BadRequestException;
 import com.meexora.common.exception.UnauthorizedException;
-import com.meexora.common.exception.UserNotFoundException;
+import com.meexora.common.exception.NotFoundException;
+import com.meexora.common.kafka.AccountVerificationMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,33 +30,16 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-
-    public AuthResponse register(RegisterRequest request) {
-            if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-                throw new BadRequestException("Email already in use");
-            }
-            Role role = roleRepository.findByName(request.getRole().toUpperCase())
-                    .orElseThrow(() -> new BadRequestException("Role not found"));
-            User user = new User();
-            user.setId(UUID.randomUUID());
-            user.setEmail(request.getEmail());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setRole(role);
-            user.setCreatedAt(Instant.now());
-            user.setStatusUpdatedAt(Instant.now());
-            userRepository.save(user);
-            String accessToken = jwtService.generateAccessToken(user);
-            String refreshToken = jwtService.generateRefreshToken(user);
-            return new AuthResponse(accessToken, refreshToken);
-    }
+    private final RegistrationTempService registrationTempService;
+    private final VerificationCodeGenerator codeGenerator;
+    private final ForgotPasswordEventProducer forgotPasswordEventProducer;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -64,7 +51,7 @@ public class AuthService {
 
     public AuthResponse refresh(String refreshToken) {
         if (!jwtService.isValid(refreshToken)) {
-            throw new UnauthorizedException(new String("Invalid refresh token"));
+            throw new UnauthorizedException("Invalid refresh token");
         }
 
         String userId = jwtService.getSubject(refreshToken);
@@ -72,7 +59,7 @@ public class AuthService {
         System.out.println(tokenIssuedAt);
 
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Instant userStatus = user.getStatusUpdatedAt();
         System.out.println(userStatus);
@@ -92,10 +79,35 @@ public class AuthService {
 
     public void logout(String userId) {
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         user.setStatusUpdatedAt(Instant.now());
         userRepository.save(user);
+    }
+
+    public void requestPasswordReset(AccountModificationRequest request) {
+        userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("User not found"));
+        if (registrationTempService.isRequestForgotPasswordBlocked(request.getEmail())) {
+            throw new EmailRequestRateLimitException("Email request rate limit exceeded");
+        }
+        String verificationCode = codeGenerator.generateCode();
+        registrationTempService.saveForgotPasswordCode(request.getEmail(), verificationCode);
+        registrationTempService.blockForgotPasswordRequest(request.getEmail());
+        forgotPasswordEventProducer.sendForgotPasswordRequest(new AccountVerificationMessage(request.getEmail(), verificationCode));
+    }
+
+    public AuthResponse confirmPasswordReset(PasswordResetRequest request) {
+        String expectedCode = registrationTempService.getForgotPasswordCode(request.getEmail());
+        if (expectedCode==null || !expectedCode.equals(request.getCode())) {
+            throw new BadRequestException("Code expired or not found");
+        }
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        registrationTempService.deleteForgotPasswordCode(request.getEmail());
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        return new AuthResponse(accessToken, refreshToken);
     }
 
 

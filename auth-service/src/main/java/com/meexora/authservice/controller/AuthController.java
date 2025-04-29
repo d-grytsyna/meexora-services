@@ -1,11 +1,10 @@
 package com.meexora.authservice.controller;
 
 
-import com.meexora.authservice.dto.request.AuthRequest;
-import com.meexora.authservice.dto.request.RegisterRequest;
-import com.meexora.authservice.dto.request.TokenRefreshRequest;
+import com.meexora.authservice.dto.request.*;
 import com.meexora.authservice.dto.response.AuthResponse;
 import com.meexora.authservice.service.AuthService;
+import com.meexora.authservice.service.RegistrationService;
 import com.meexora.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +17,31 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final RegistrationService registrationService;
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(ApiResponse.success("Registration successful", response));
+
+    @PostMapping("/registration/request")
+    public ResponseEntity<ApiResponse<String>> registerRequest(@Valid @RequestBody AccountModificationRequest request) {
+        registrationService.requestRegistration(request);
+        return ResponseEntity.ok(ApiResponse.success("Registration request successful" , null));
+    }
+
+    @PostMapping("/registration/confirm")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerConfirm(@Valid @RequestBody ConfirmRegistrationRequest request) {
+        AuthResponse response = registrationService.confirmRegistration(request);
+        return ResponseEntity.ok(ApiResponse.success("Registration confirmed", response));
+    }
+
+    @PostMapping("/password-reset/request")
+    public ResponseEntity<ApiResponse<String>> passwordResetRequest(@Valid @RequestBody AccountModificationRequest request) {
+        authService.requestPasswordReset(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset request successful", null));
+    }
+
+    @PostMapping("/password-reset/confirm")
+    public ResponseEntity<ApiResponse<AuthResponse>> passwordResetConfirm(@Valid @RequestBody PasswordResetRequest request) {
+        AuthResponse response = authService.confirmPasswordReset(request);
+        return ResponseEntity.ok(ApiResponse.success("Password has been successfully reset", response));
     }
 
     @PostMapping("/login")
