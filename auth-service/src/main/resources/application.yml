@@ -2,17 +2,6 @@ spring:
   application:
     name: auth-service
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: meexora.app@gmail.com
-    password: bfcu otnj xbmd tfnr
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 
   datasource:
     url: jdbc:postgresql://localhost:5433/meexora_auth
