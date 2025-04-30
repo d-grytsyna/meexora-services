@@ -12,6 +12,7 @@
 
     <modules>
         <module>auth-service</module>
+        <module>user-service</module>
         <module>meexora-common</module>
         <module>gateway-service</module>
         <module>discovery-service</module>

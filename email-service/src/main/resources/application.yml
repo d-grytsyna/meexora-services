@@ -20,7 +20,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: meexora.app@gmail.com
-    password:
+    password: bfcu otnj xbmd tfnr
     properties:
       mail:
         smtp:

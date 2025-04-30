@@ -58,7 +58,8 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     private boolean isWhitelisted(String path) {
         return path.equals("/auth/login")
                 || path.equals("/auth/register")
-                || path.equals("/auth/registration")
+                || path.equals("/auth/registration/request")
+                || path.equals("/auth/registration/confirm")
                 || path.equals("/auth/password-reset/request")
                 || path.equals("/auth/password-reset/confirm")
                 || path.equals("/auth/refresh");
