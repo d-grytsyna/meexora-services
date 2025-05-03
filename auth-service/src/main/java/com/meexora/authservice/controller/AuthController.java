@@ -21,7 +21,7 @@ public class AuthController {
 
 
     @PostMapping("/registration/request")
-    public ResponseEntity<ApiResponse<String>> registerRequest(@Valid @RequestBody AccountModificationRequest request) {
+    public ResponseEntity<ApiResponse<Void>> registerRequest(@Valid @RequestBody AccountModificationRequest request) {
         registrationService.requestRegistration(request);
         return ResponseEntity.ok(ApiResponse.success("Registration request successful" , null));
     }
@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/password-reset/request")
-    public ResponseEntity<ApiResponse<String>> passwordResetRequest(@Valid @RequestBody AccountModificationRequest request) {
+    public ResponseEntity<ApiResponse<Void>> passwordResetRequest(@Valid @RequestBody AccountModificationRequest request) {
         authService.requestPasswordReset(request);
         return ResponseEntity.ok(ApiResponse.success("Password reset request successful", null));
     }
@@ -57,7 +57,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("X-User-Id") String userId) {
         authService.logout(userId);
         return ResponseEntity.ok(ApiResponse.success("Logged out", null));
     }

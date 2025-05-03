@@ -40,4 +40,12 @@ public class UserProfile {
         updatedAt = Instant.now();
     }
 
+    @PrePersist
+    protected void onCreate() {
+        Instant now = Instant.now();
+        createdAt = now;
+        updatedAt = now;
+    }
+
+
 }
