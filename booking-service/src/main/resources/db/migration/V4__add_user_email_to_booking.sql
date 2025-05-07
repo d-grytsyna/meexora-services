@@ -1,0 +1,2 @@
+ALTER TABLE bookings
+    ADD COLUMN user_email VARCHAR(255) NOT NULL;

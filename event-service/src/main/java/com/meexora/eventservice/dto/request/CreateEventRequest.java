@@ -4,7 +4,7 @@ package com.meexora.eventservice.dto.request;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +22,7 @@ public class CreateEventRequest {
         private String description;
 
         @NotNull
-        private LocalDateTime date;
+        private OffsetDateTime date;
 
         @NotNull
         @DecimalMin(value = "-90.0")

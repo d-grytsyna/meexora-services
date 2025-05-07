@@ -1,10 +1,17 @@
 package com.meexora.emailservice.service;
 
+import com.meexora.common.dto.EmailTicketDto;
+import com.meexora.common.kafka.TicketEmailMessage;
+import com.meexora.emailservice.utils.TicketPdfGenerator;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +19,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MailService {
     private final JavaMailSender mailSender;
+    private final TicketPdfGenerator pdfGenerator;
 
     public void sendVerificationEmail(String email, String verificationCode) {
         try {
@@ -51,6 +59,39 @@ public class MailService {
             log.info("Reset password email successfully sent to {}", email);
         } catch (MailException ex) {
             log.error("Failed to send reset password email to {}. Reason: {}", email, ex.getMessage(), ex);
+        }
+    }
+
+    public void sendTickets(TicketEmailMessage message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+            helper.setTo(message.getUserEmail());
+            helper.setSubject("Your Tickets for " + message.getTickets().get(0).getEventTitle());
+            helper.setText("Dear " + message.getTickets().get(0).getUserName() + ",\n\n" +
+                    "Please find your event tickets attached as PDF files.\n\nEnjoy the event!", false);
+
+            for (int i = 0; i < message.getTickets().size(); i++) {
+                EmailTicketDto ticket = message.getTickets().get(i);
+
+                byte[] pdfBytes = pdfGenerator.generateTicket(
+                        ticket.getUserName(),
+                        ticket.getEventTitle(),
+                        ticket.getEventLocation(),
+                        ticket.getEventDate(),
+                        ticket.getPrice(),
+                        ticket.getQrCode()
+                );
+
+                ByteArrayResource resource = new ByteArrayResource(pdfBytes);
+                helper.addAttachment("ticket-" + (i + 1) + ".pdf", resource);
+            }
+
+            mailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            throw new MailSendException("Failed to send ticket email", e);
         }
     }
 

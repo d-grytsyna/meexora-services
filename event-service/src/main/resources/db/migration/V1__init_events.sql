@@ -3,7 +3,7 @@ CREATE TABLE events (
                         creator_id UUID NOT NULL,
                         title VARCHAR(255) NOT NULL,
                         description TEXT,
-                        date TIMESTAMP NOT NULL,
+                        date TIMESTAMPTZ NOT NULL,
                         latitude DOUBLE PRECISION NOT NULL,
                         longitude DOUBLE PRECISION NOT NULL,
                         address VARCHAR(500),
@@ -14,6 +14,6 @@ CREATE TABLE events (
                         dynamic_pricing_enabled BOOLEAN NOT NULL DEFAULT FALSE,
                         min_price NUMERIC(10, 2),
                         max_price NUMERIC(10, 2),
-                        created_at TIMESTAMP DEFAULT now(),
-                        updated_at TIMESTAMP DEFAULT now()
+                        created_at TIMESTAMPTZ DEFAULT now(),
+                        updated_at TIMESTAMPTZ DEFAULT now()
 );

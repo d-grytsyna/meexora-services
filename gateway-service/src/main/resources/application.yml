@@ -13,6 +13,18 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/user/**
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/booking/**
+        - id: ticket-management-service
+          uri: lb://ticket-management-service
+          predicates:
+            - Path=/ticket/**
+        - id: event-service
+          uri: lb://event-service
+          predicates:
+            - Path=/event/**
 
   boot:
     admin:

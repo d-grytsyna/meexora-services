@@ -30,29 +30,40 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+
         if (isWhitelisted(path)) {
             return chain.filter(exchange);
         }
-        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return unauthorized(exchange, "Missing or invalid Authorization header");
         }
+
         String token = authHeader.substring(7);
         if (!jwtUtils.isValid(token)) {
             return unauthorized(exchange, "Invalid or expired token");
         }
+
         String userId;
+        String email = null;
         try {
             userId = jwtUtils.getUserId(token);
+            if (path.startsWith("/booking/create")) {
+                email = jwtUtils.getEmail(token);
+            }
         } catch (Exception e) {
-            return unauthorized(exchange, "Failed to extract user ID");
+            return unauthorized(exchange, "Failed to extract token information");
         }
-        ServerHttpRequest modifiedRequest = request.mutate()
-                .header("X-User-Id", userId)
-                .build();
 
-        return chain.filter(exchange.mutate().request(modifiedRequest).build());
+        ServerHttpRequest.Builder mutatedRequestBuilder = request.mutate()
+                .header("X-User-Id", userId);
+
+        if (email != null) {
+            mutatedRequestBuilder.header("X-User-Email", email);
+        }
+
+        return chain.filter(exchange.mutate().request(mutatedRequestBuilder.build()).build());
     }
 
     private boolean isWhitelisted(String path) {

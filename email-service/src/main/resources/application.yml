@@ -14,7 +14,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: com.meexora.common.kafka
+        spring.json.trusted.packages: "com.meexora.common.kafka,com.meexora.common.dto"
 
   mail:
     host: smtp.gmail.com
@@ -32,3 +32,4 @@ kafka:
   topic:
     user-registration-request: user-registration-request
     user-forgot-password-request: user-forgot-password-request
+    ticket-email: ticket-email

@@ -18,8 +18,9 @@
         <module>discovery-service</module>
         <module>email-service</module>
         <module>event-service</module>
-        <module>availability-service</module>
-        <module>ticket-service</module>
+        <module>booking-service</module>
+        <module>payment-service</module>
+        <module>ticket-management-service</module>
     </modules>
 
     <properties>

@@ -7,7 +7,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -33,7 +33,7 @@ public class Event {
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private OffsetDateTime date;
 
     @Column(nullable = false)
     private Double latitude;

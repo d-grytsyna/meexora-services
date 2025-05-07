@@ -34,8 +34,13 @@ public class JwtUtils {
                 .getBody();
     }
 
+
     public String getUserId(String token) {
         return getClaims(token).getSubject();
+    }
+
+    public String getEmail(String token) {
+        return getClaims(token).get("email", String.class);
     }
 
     public Instant getIssuedAt(String token) {

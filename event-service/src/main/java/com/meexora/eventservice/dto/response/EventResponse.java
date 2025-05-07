@@ -4,8 +4,7 @@ package com.meexora.eventservice.dto.response;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -19,7 +18,7 @@ public class EventResponse {
 
     private String description;
 
-    private LocalDateTime date;
+    private OffsetDateTime date;
 
     private Double latitude;
 
@@ -37,7 +36,4 @@ public class EventResponse {
 
     private BigDecimal maxPrice;
 
-    private Instant createdAt;
-
-    private Instant updatedAt;
 }

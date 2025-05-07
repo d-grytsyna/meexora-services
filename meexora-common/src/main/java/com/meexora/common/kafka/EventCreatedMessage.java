@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
@@ -13,5 +13,5 @@ import java.util.UUID;
 public class EventCreatedMessage {
     private UUID eventId;
     private Integer totalTickets;
-    private LocalDateTime date;
+    private OffsetDateTime date;
 }

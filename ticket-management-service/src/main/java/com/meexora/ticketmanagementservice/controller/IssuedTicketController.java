@@ -1,0 +1,25 @@
+package com.meexora.ticketmanagementservice.controller;
+
+
+import com.meexora.common.response.ApiResponse;
+import com.meexora.ticketmanagementservice.dto.request.TicketValidationRequest;
+import com.meexora.ticketmanagementservice.dto.response.VerifiedTicketResponse;
+import com.meexora.ticketmanagementservice.service.TicketVerificationService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ticket")
+@RequiredArgsConstructor
+public class IssuedTicketController {
+    private final TicketVerificationService ticketVerificationService;
+
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse<VerifiedTicketResponse>> verifyTicket(@RequestBody @Valid TicketValidationRequest request, @RequestHeader("X-User-Id") String userId) {
+        System.out.println("Here is the request");
+        VerifiedTicketResponse response = ticketVerificationService.verifyTicket(request);
+        return ResponseEntity.ok(ApiResponse.success("Ticket verified successfully", response));
+    }
+}
