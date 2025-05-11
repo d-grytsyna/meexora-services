@@ -16,7 +16,7 @@ spring:
         - id: booking-service
           uri: lb://booking-service
           predicates:
-            - Path=/booking/**
+            - Path=/bookings/**
         - id: ticket-management-service
           uri: lb://ticket-management-service
           predicates:
@@ -25,7 +25,10 @@ spring:
           uri: lb://event-service
           predicates:
             - Path=/event/**
-
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payments/**
   boot:
     admin:
       client:

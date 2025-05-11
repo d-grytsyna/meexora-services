@@ -1,4 +1,5 @@
 package com.meexora.bookingservice.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.meexora.bookingservice.model.status.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,10 @@ public class Booking {
     @Column(name = "event_id", nullable = false)
     private UUID eventId;
 
+    @Column(name = "organizer_id", nullable = false)
+    private UUID organizerId;
+
+
     @Column(name = "event_title", nullable = false)
     private String eventTitle;
 
@@ -48,6 +53,12 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
+
+    @Column(name = "expires_at", nullable = false)
+    private OffsetDateTime expiresAt;
+
+    @Column(name = "payment_expires_at", nullable = false)
+    private OffsetDateTime paymentExpiresAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -12,10 +12,13 @@ import java.util.UUID;
 public class BookingTempService {
 
     private final StringRedisTemplate redisTemplate;
-    private static final Duration BOOKING_EXPIRATION = Duration.ofMinutes(15);
+    private static final Duration BOOKING_EXPIRATION = Duration.ofMinutes(25);
+    private static final Duration WATCHING_BOOKING_EXPIRATION = Duration.ofMinutes(70);
 
-    public void saveBookingExpiration(UUID bookingId) {
-        redisTemplate.opsForValue().set(buildKey(bookingId), bookingId.toString(), BOOKING_EXPIRATION);
+    public void saveBookingExpiration(UUID bookingId, boolean isWatching) {
+        if(isWatching)        redisTemplate.opsForValue().set(buildKey(bookingId), bookingId.toString(), WATCHING_BOOKING_EXPIRATION);
+        else   redisTemplate.opsForValue().set(buildKey(bookingId), bookingId.toString(), BOOKING_EXPIRATION);
+
     }
 
     public boolean isBookingActive(UUID bookingId) {

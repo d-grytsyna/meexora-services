@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         String email = null;
         try {
             userId = jwtUtils.getUserId(token);
-            if (path.startsWith("/booking/create")) {
+            if (path.startsWith("/bookings") || path.startsWith("/payments/stripe")) {
                 email = jwtUtils.getEmail(token);
             }
         } catch (Exception e) {

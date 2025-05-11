@@ -2,6 +2,7 @@ package com.meexora.emailservice.service;
 
 import com.meexora.common.dto.EmailTicketDto;
 import com.meexora.common.kafka.TicketEmailMessage;
+import com.meexora.common.kafka.TicketGenerationMessage;
 import com.meexora.emailservice.utils.TicketPdfGenerator;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,79 @@ public class MailService {
 
         } catch (Exception e) {
             throw new MailSendException("Failed to send ticket email", e);
+        }
+    }
+
+    public void sendRefundTickets(TicketGenerationMessage message) {
+        if ("REFUNDED".equals(message.getStatus())) {
+            sendRefundSuccessEmail(message);
+        } else if ("REFUND_FAILED".equals(message.getStatus())) {
+            sendRefundFailedEmail(message);
+        } 
+    }
+    private void sendRefundSuccessEmail(TicketGenerationMessage message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false);
+
+            helper.setTo(message.getUserEmail());
+            helper.setSubject("Your booking has been refunded: " + message.getEventTitle());
+
+            String body =
+                    "Your booking for \"" + message.getEventTitle() + "\" on " +
+                    message.getEventDate().toLocalDate() + " has expired and was automatically cancelled.\n\n" +
+                    "A refund of €" + message.getTotalPrice() + " is being processed and should appear on your payment method soon.\n\n" +
+                    "If you have any questions, feel free to contact our support.\n\n" +
+                    "— Meexora Team";
+
+            helper.setText(body, false);
+            mailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new MailSendException("Failed to send refund success email", e);
+        }
+    }
+    private void sendRefundFailedEmail(TicketGenerationMessage message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false);
+
+            helper.setTo(message.getUserEmail());
+            helper.setSubject("Refund failed: " + message.getEventTitle());
+
+            String body =
+                    "We attempted to refund your payment for \"" + message.getEventTitle() + "\", but the operation failed.\n\n" +
+                    "Please contact support to manually resolve the issue. Your booking is marked as expired.\n\n" +
+                    "— Meexora Team";
+
+            helper.setText(body, false);
+            mailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new MailSendException("Failed to send refund failed email", e);
+        }
+    }
+
+
+    public void sendWatchingUpdate(TicketGenerationMessage message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false);
+
+            helper.setTo(message.getUserEmail());
+            helper.setSubject("Your booking has been confirmed: " + message.getEventTitle());
+
+            String body =
+                    "Good news!\n\n" +
+                            "Tickets for the event \"" + message.getEventTitle() + "\" have become available.\n" +
+                            "Your monitored booking has been successfully confirmed and reserved.\n\n" +
+                            "You now have limited time (e.g. 30 minutes) to complete the payment before your reservation expires.\n" +
+                            "Please visit Meexora and complete the payment to secure your tickets.\n\n" +
+                            "— Meexora Team";
+
+            helper.setText(body, false);
+            mailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            throw new MailSendException("Failed to send booking confirmation for watching update", e);
         }
     }
 

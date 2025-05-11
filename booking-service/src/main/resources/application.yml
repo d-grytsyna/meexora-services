@@ -31,6 +31,10 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.meexora.common.kafka,com.meexora.common.dto"
+  data:
+    redis:
+      port: 6379
+      host: localhost
 
 eureka:
   client:
@@ -40,10 +44,13 @@ eureka:
 client:
   event-service:
     url: http://EVENT-SERVICE
+  payment-service:
+    url: http://PAYMENT-SERVICE
 
 kafka:
   topic:
     event-created: event-created
-    booking-created: booking-created
-    payment-completed: payment-completed
+    payment-status-update: payment-status-update
     booking-confirmed: booking-confirmed
+    booking-refund: booking-refund
+    watching-booking-update: watching-booking-update

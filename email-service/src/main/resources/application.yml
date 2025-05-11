@@ -33,3 +33,5 @@ kafka:
     user-registration-request: user-registration-request
     user-forgot-password-request: user-forgot-password-request
     ticket-email: ticket-email
+    booking-refund: booking-refund
+    watching-booking-update: watching-booking-update

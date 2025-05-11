@@ -3,6 +3,8 @@ package com.meexora.bookingservice.model.status;
 public enum BookingStatus {
     RESERVED,
     PAID,
-    EXPIRED,
-    CANCELLED
+    REFUNDED,
+    REFUND_FAILED,
+    CANCELLED,
+    WATCHING
 }

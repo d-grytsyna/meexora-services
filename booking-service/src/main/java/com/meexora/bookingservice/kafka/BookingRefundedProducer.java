@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BookingConfirmedProducer {
+public class BookingRefundedProducer {
     private final KafkaTemplate<String, TicketGenerationMessage> kafkaTemplate;
 
-    @Value("${kafka.topic.booking-confirmed}")
+    @Value("${kafka.topic.booking-refund}")
     private String topic;
 
     public void sendBookingUpdatedEvent(TicketGenerationMessage message) {
