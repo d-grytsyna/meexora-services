@@ -8,6 +8,7 @@ ALTER TABLE bookings
                           'PAID',
                           'CANCELLED',
                           'REFUNDED',
+                          'EXPIRED',
                           'REFUND_FAILED',
                           'WATCHING'
             ));
@@ -23,5 +24,6 @@ ALTER TABLE tickets
                           'CANCELLED',
                           'REFUNDED',
                           'REFUND_FAILED',
-                          'WATCHING'
+                          'WATCHING',
+                          'EXPIRED'
             ));

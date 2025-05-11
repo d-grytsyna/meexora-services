@@ -84,20 +84,9 @@ public class BookingWatchingService {
             throw new IllegalStateException("Booking is not in WATCHING state");
         }
 
-        TicketAvailability availability = ticketAvailabilityRepository.findByEventId(booking.getEventId())
-                .orElseThrow(() -> new NotFoundException("Ticket availability not found"));
-
-        int requestedTickets = booking.getTickets().size();
-        if (availability.getRemainingTickets() < requestedTickets) {
-            throw new InsufficientTicketsException("Not enough tickets available to confirm booking");
-        }
-
-        availability.setRemainingTickets(availability.getRemainingTickets() - requestedTickets);
-        ticketAvailabilityRepository.save(availability);
-
         OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime expiresAt = now.plusMinutes(60);
-        OffsetDateTime paymentExpiresAt = now.plusMinutes(65);
+        OffsetDateTime expiresAt = now.plusMinutes(1);
+        OffsetDateTime paymentExpiresAt = now.plusMinutes(1);
 
         booking.setStatus(BookingStatus.RESERVED);
         booking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.RESERVED));
@@ -112,12 +101,16 @@ public class BookingWatchingService {
 
     @Transactional
     public void handleBookingExpiration(UUID bookingId) {
+        System.out.println("Handle booking expiration");
         Booking expiredBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
 
         if (expiredBooking.getStatus().equals(BookingStatus.PAID)) {
             return;
         }
+        expiredBooking.setStatus(BookingStatus.EXPIRED);
+        expiredBooking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.EXPIRED));
+        bookingRepository.save(expiredBooking);
 
         int releasedTickets = expiredBooking.getTickets().size();
         TicketAvailability availability = ticketAvailabilityRepository
@@ -157,6 +150,9 @@ public class BookingWatchingService {
                         .totalPrice(watchingBooking.getTotalPrice())
                         .build();
                 watchingBookingUpdateProducer.sendWatchingBookingUpdatedEvent(ticketMessage);
+                watchingBooking.setStatus(BookingStatus.RESERVED);
+                watchingBooking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.RESERVED));
+                bookingRepository.save(watchingBooking);
             }
         }
         availability.setRemainingTickets(availability.getRemainingTickets() + ticketDifference);

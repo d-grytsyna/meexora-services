@@ -6,5 +6,6 @@ public enum TicketStatus {
     REFUNDED,
     REFUND_FAILED,
     CANCELLED,
-    WATCHING
+    WATCHING,
+    EXPIRED
 }

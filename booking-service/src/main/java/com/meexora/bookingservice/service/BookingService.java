@@ -70,8 +70,8 @@ public class BookingService {
 
         // Create a new booking with expiration time of 15 minutes
         OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime expiresAt = now.plusMinutes(15);
-        OffsetDateTime paymentExpiresAt = now.plusMinutes(20);
+        OffsetDateTime expiresAt = now.plusMinutes(1);
+        OffsetDateTime paymentExpiresAt = now.plusMinutes(1);
         Booking booking = Booking.builder()
                 .userId(UUID.fromString(userId))
                 .userEmail(email)
