@@ -1,0 +1,2 @@
+ALTER TABLE tickets
+    ADD COLUMN price NUMERIC(10,2) NOT NULL;

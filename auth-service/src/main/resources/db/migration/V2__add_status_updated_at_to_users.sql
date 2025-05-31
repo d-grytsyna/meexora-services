@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD COLUMN status_updated_at TIMESTAMP WITH TIME ZONE;

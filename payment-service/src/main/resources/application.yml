@@ -1,0 +1,49 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: payment-service
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/meexora_payment
+    username: postgres
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: ticket-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.meexora.common.kafka"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+kafka:
+  topic:
+    payment-status-update: payment-status-update
+
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  public-key: ${STRIPE_PUBLIC_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}

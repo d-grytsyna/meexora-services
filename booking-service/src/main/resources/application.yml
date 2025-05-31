@@ -1,0 +1,56 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: booking-service
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/meexora_booking
+    username: postgres
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: ticket-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.meexora.common.kafka,com.meexora.common.dto"
+  data:
+    redis:
+      port: 6379
+      host: localhost
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+client:
+  event-service:
+    url: http://EVENT-SERVICE
+  payment-service:
+    url: http://PAYMENT-SERVICE
+
+kafka:
+  topic:
+    event-created: event-created
+    payment-status-update: payment-status-update
+    booking-confirmed: booking-confirmed
+    booking-refund: booking-refund
+    watching-booking-update: watching-booking-update
