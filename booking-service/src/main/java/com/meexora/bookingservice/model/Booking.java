@@ -1,5 +1,4 @@
 package com.meexora.bookingservice.model;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.meexora.bookingservice.model.status.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;

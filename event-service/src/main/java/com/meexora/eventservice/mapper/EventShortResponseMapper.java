@@ -8,5 +8,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EventShortResponseMapper {
+    EventShortResponse toEventShortResponse(Event event);
+
     List<EventShortResponse> toEventShortResponse(List<Event> events);
 }

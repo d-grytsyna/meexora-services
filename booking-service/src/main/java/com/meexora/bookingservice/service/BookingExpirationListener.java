@@ -19,12 +19,9 @@ public class BookingExpirationListener implements MessageListener {
 
         if (expiredKey.startsWith("booking:expires:")) {
             String bookingIdStr = expiredKey.replace("booking:expires:", "");
-            try {
-                UUID bookingId = UUID.fromString(bookingIdStr);
-                bookingWatchingService.handleBookingExpiration(bookingId);
-            } catch (IllegalArgumentException e) {
+            UUID bookingId = UUID.fromString(bookingIdStr);
+            bookingWatchingService.handleBookingExpiration(bookingId);
 
-            }
         }
     }
 }

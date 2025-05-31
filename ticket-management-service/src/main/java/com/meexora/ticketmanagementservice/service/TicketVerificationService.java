@@ -28,7 +28,7 @@ public class TicketVerificationService {
         if(issuedTicket.getStatus()==IssuedTicketStatus.VALIDATED){
             throw new IllegalArgumentException("Ticket is already validated");
         }
-        System.out.println("Ticket verified");
+
         issuedTicket.setStatus(IssuedTicketStatus.VALIDATED);
         ticketRepository.save(issuedTicket);
         return VerifiedTicketResponse.builder()

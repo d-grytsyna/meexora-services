@@ -5,9 +5,12 @@ import com.meexora.common.response.ApiResponse;
 import com.meexora.eventservice.dto.request.CreateEventRequest;
 import com.meexora.eventservice.dto.response.EventResponse;
 import com.meexora.eventservice.dto.response.EventShortResponse;
+import com.meexora.eventservice.dto.response.PaginatedResponse;
+import com.meexora.eventservice.model.category.EventCategory;
 import com.meexora.eventservice.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +32,7 @@ public class EventController{
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EventDetailsDto>> getEventById(@PathVariable("id") UUID id) {
-        System.out.println("Event service get event by id: " + id);
             EventDetailsDto dto = eventService.getEventDetails(id);
-        System.out.println(dto.getTicketPrice());
             return ResponseEntity.ok(ApiResponse.success(dto));
     }
 
@@ -42,12 +43,39 @@ public class EventController{
     }
 
     @GetMapping("/public")
-    public ResponseEntity<ApiResponse<List<EventShortResponse>>> getAllEvents() {
-        List<EventShortResponse> eventList = eventService.findAllEvents();
-
-        System.out.println(eventList.size());
-        return ResponseEntity.ok(ApiResponse.success("All events found: ", eventList));
+    public ResponseEntity<ApiResponse<PaginatedResponse<EventShortResponse>>> getEventsByCity(
+            @RequestParam(name = "city") String city,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "category", required = false) EventCategory category
+    ) {
+        Page<EventShortResponse> pageResult = eventService.findEventsByCity(city, category, page, size);
+        PaginatedResponse<EventShortResponse> response = PaginatedResponse.fromPage(pageResult);
+        return ResponseEntity.ok(ApiResponse.success("Events found", response));
     }
+
+    @GetMapping("/nearby")
+    public ResponseEntity<ApiResponse<PaginatedResponse<EventShortResponse>>> getEventsNearby(
+            @RequestParam(name = "lat") double lat,
+            @RequestParam(name = "lng") double lng,
+            @RequestParam(name = "category", required = false) String categoryRaw,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        EventCategory category = null;
+        if (categoryRaw != null) {
+            category = EventCategory.valueOf(categoryRaw);
+        }
+
+        Page<EventShortResponse> pageResult = eventService.findEventsNearby(lat, lng, category, page, size);
+        PaginatedResponse<EventShortResponse> response = PaginatedResponse.fromPage(pageResult);
+        return ResponseEntity.ok(ApiResponse.success("Nearby events found", response));
+    }
+
+
+
+
+
 
 
 

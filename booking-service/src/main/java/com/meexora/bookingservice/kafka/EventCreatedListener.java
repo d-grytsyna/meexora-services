@@ -18,7 +18,6 @@ public class EventCreatedListener {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void handleEventCreated(EventCreatedMessage message) {
-        System.out.println("Received event " + message.getEventId());
         availabilityService.saveTicketAvailability(message);
     }
 }

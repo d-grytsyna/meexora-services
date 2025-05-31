@@ -1,6 +1,7 @@
 package com.meexora.eventservice.dto.response;
 
 
+import com.meexora.eventservice.model.category.EventCategory;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,6 +16,8 @@ public class EventResponse {
     private UUID creatorId;
 
     private String title;
+
+    private EventCategory category;
 
     private String description;
 

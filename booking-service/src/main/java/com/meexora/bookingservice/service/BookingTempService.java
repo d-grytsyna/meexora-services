@@ -12,8 +12,8 @@ import java.util.UUID;
 public class BookingTempService {
 
     private final StringRedisTemplate redisTemplate;
-    private static final Duration BOOKING_EXPIRATION = Duration.ofMinutes(1);
-    private static final Duration WATCHING_BOOKING_EXPIRATION = Duration.ofMinutes(1);
+    private static final Duration BOOKING_EXPIRATION = Duration.ofMinutes(20);
+    private static final Duration WATCHING_BOOKING_EXPIRATION = Duration.ofMinutes(60);
 
     public void saveBookingExpiration(UUID bookingId, boolean isWatching) {
         if(isWatching)        redisTemplate.opsForValue().set(buildKey(bookingId), bookingId.toString(), WATCHING_BOOKING_EXPIRATION);

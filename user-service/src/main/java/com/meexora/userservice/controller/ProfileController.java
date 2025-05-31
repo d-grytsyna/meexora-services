@@ -3,15 +3,12 @@ package com.meexora.userservice.controller;
 
 import com.meexora.common.response.ApiResponse;
 import com.meexora.userservice.dto.UserProfileDto;
-import com.meexora.userservice.model.UserProfile;
 import com.meexora.userservice.service.UserProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")

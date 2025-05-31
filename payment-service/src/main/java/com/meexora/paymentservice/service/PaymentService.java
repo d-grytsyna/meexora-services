@@ -3,6 +3,7 @@ package com.meexora.paymentservice.service;
 import com.meexora.common.dto.PaymentIntentRequest;
 import com.meexora.common.dto.PaymentIntentResponse;
 import com.meexora.common.exception.ExternalServiceException;
+import com.meexora.common.exception.NotFoundException;
 import com.meexora.common.kafka.PaymentStatusUpdateMessage;
 import com.meexora.paymentservice.kafka.PaymentStatusProducer;
 import com.meexora.paymentservice.model.Payment;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -101,4 +103,8 @@ public class PaymentService {
     }
 
 
+    public PaymentIntentResponse getExistingPaymentIntent(UUID bookingId) {
+        Payment payment = paymentRepository.findPaymentByBookingId(bookingId).orElseThrow(() -> new NotFoundException("Payment not found"));
+        return new PaymentIntentResponse(payment.getClientSecret());
+    }
 }

@@ -44,6 +44,6 @@ kafka:
 
 
 stripe:
-  secret-key: sk_test_51RMCFxC6bH50redfcipovuHRA4umPwmWPlecPR1nU9x5Rlg4EqUnzV6w5H7B9d5YptIke91ywsUuIlvsI7rNVsco00vS7fVLxq
-  public-key: pk_test_51RMCFxC6bH50redfyvGMobfeb48oESkfsNNjC48cdxAprCTl5wtCacqR6nXd0gh1sWqpDGRogGbEhnvN9m5AIp8G00ycSpsbAM
-  webhook-secret: whsec_21e6d13764b23652eb2fd2b7de12ced43af58c54ed1e870ec8c79e756eee89af
+  secret-key: ${STRIPE_SECRET_KEY}
+  public-key: ${STRIPE_PUBLIC_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}

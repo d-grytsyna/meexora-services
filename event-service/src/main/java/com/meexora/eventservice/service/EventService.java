@@ -11,8 +11,13 @@ import com.meexora.eventservice.mapper.EventDetailsMapper;
 import com.meexora.eventservice.mapper.EventDtoMapper;
 import com.meexora.eventservice.mapper.EventShortResponseMapper;
 import com.meexora.eventservice.model.Event;
+import com.meexora.eventservice.model.category.EventCategory;
 import com.meexora.eventservice.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,9 +63,33 @@ public class EventService {
         return eventShortResponseMapper.toEventShortResponse(events);
     }
 
+    public Page<EventShortResponse> findEventsByCity(String city, EventCategory category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
+
+        Page<Event> events;
+        if (category == null) {
+            events = eventRepository.findByCityIgnoreCase(city, pageable);
+        } else {
+            events = eventRepository.findByCityIgnoreCaseAndCategory(city, category, pageable);
+        }
+
+        return events.map(eventShortResponseMapper::toEventShortResponse);
+    }
 
 
+    public Page<EventShortResponse> findEventsNearby(double latitude, double longitude, EventCategory category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
 
+        double distance = 3.0;
 
+        Page<Event> events;
+        if (category == null) {
+            events = eventRepository.findNearby(latitude, longitude, distance, pageable);
+        } else {
+            events = eventRepository.findNearbyByCategory(latitude, longitude, distance, category.name(), pageable);
+        }
+
+        return events.map(eventShortResponseMapper::toEventShortResponse);
+    }
 
 }

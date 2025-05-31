@@ -2,6 +2,7 @@ package com.meexora.eventservice.model;
 
 
 
+import com.meexora.eventservice.model.category.EventCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,11 @@ public class Event {
     @Column(nullable = false, length = 255)
     private String title;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventCategory category;
+
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -43,6 +49,9 @@ public class Event {
 
     @Column(length = 500)
     private String address;
+
+    @Column(length = 500)
+    private String city;
 
     @Column(nullable = false)
     private Integer totalTickets;

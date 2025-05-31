@@ -1,7 +1,9 @@
 package com.meexora.eventservice.dto.response;
 
+import com.meexora.eventservice.model.category.EventCategory;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -14,6 +16,8 @@ public class EventShortResponse {
 
         private String title;
 
+        private EventCategory category;
+
         private String description;
 
         private OffsetDateTime date;
@@ -23,4 +27,6 @@ public class EventShortResponse {
         private Double longitude;
 
         private String address;
+
+        private BigDecimal price;
 }

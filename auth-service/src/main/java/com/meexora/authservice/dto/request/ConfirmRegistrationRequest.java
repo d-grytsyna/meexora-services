@@ -1,6 +1,5 @@
 package com.meexora.authservice.dto.request;
 
-import com.meexora.authservice.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

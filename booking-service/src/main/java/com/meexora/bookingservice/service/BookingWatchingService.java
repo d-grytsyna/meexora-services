@@ -85,8 +85,8 @@ public class BookingWatchingService {
         }
 
         OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime expiresAt = now.plusMinutes(1);
-        OffsetDateTime paymentExpiresAt = now.plusMinutes(1);
+        OffsetDateTime expiresAt = now.plusMinutes(60);
+        OffsetDateTime paymentExpiresAt = now.plusMinutes(60);
 
         booking.setStatus(BookingStatus.RESERVED);
         booking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.RESERVED));
@@ -96,12 +96,11 @@ public class BookingWatchingService {
 
         bookingTempService.saveBookingExpiration(booking.getId(), true);
 
-         bookingService.buildBookingResponseWithPaymentIntent(booking);
+        bookingService.buildBookingResponseWithPaymentIntent(booking);
     }
 
     @Transactional
     public void handleBookingExpiration(UUID bookingId) {
-        System.out.println("Handle booking expiration");
         Booking expiredBooking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
 

@@ -39,7 +39,7 @@ public class AuthService {
 
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -56,13 +56,11 @@ public class AuthService {
 
         String userId = jwtService.getSubject(refreshToken);
         Instant tokenIssuedAt = jwtService.getIssuedAt(refreshToken);
-        System.out.println(tokenIssuedAt);
 
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User account not found"));
 
         Instant userStatus = user.getStatusUpdatedAt();
-        System.out.println(userStatus);
 
         if (tokenIssuedAt.truncatedTo(ChronoUnit.SECONDS)
                 .isBefore(userStatus.truncatedTo(ChronoUnit.SECONDS))) {
@@ -79,7 +77,7 @@ public class AuthService {
 
     public void logout(String userId) {
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Account to log out not found"));
 
         user.setStatusUpdatedAt(Instant.now());
         userRepository.save(user);

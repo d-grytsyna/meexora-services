@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/payment/stripe/accounts")
+@RequestMapping("/payments/stripe/accounts")
 @RequiredArgsConstructor
 public class StripeAccountController {
 

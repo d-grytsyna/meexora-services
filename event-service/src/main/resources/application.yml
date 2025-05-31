@@ -35,3 +35,7 @@ eureka:
 kafka:
   topic:
     event-created: event-created
+
+client:
+  booking-service:
+    url: http://BOOKING-SERVICE

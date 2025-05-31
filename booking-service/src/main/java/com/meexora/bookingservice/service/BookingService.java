@@ -70,8 +70,8 @@ public class BookingService {
 
         // Create a new booking with expiration time of 15 minutes
         OffsetDateTime now = OffsetDateTime.now();
-        OffsetDateTime expiresAt = now.plusMinutes(1);
-        OffsetDateTime paymentExpiresAt = now.plusMinutes(1);
+        OffsetDateTime expiresAt = now.plusMinutes(15);
+        OffsetDateTime paymentExpiresAt = now.plusMinutes(20);
         Booking booking = Booking.builder()
                 .userId(UUID.fromString(userId))
                 .userEmail(email)
@@ -145,9 +145,7 @@ public class BookingService {
         }
 
         booking.setStatus(BookingStatus.valueOf(paymentStatusUpdateMessage.getStatus()));
-        tickets.forEach(ticket -> {
-            ticket.setStatus(TicketStatus.valueOf(paymentStatusUpdateMessage.getStatus()));
-        });
+        tickets.forEach(ticket -> ticket.setStatus(TicketStatus.valueOf(paymentStatusUpdateMessage.getStatus())));
 
 
         bookingRepository.save(booking);
@@ -177,6 +175,11 @@ public class BookingService {
         }else{
             bookingRefundedProducer.sendBookingUpdatedEvent(ticketMessage);
         }
+    }
+
+    public List<BookingResponse> getMyBookings(String userId) {
+        List<Booking> bookings = bookingRepository.findAllByUserId(UUID.fromString(userId));
+        return bookingMapper.toDtoList(bookings);
     }
 }
 

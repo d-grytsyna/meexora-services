@@ -1,16 +1,10 @@
 package com.meexora.paymentservice.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meexora.common.dto.PaymentIntentRequest;
 import com.meexora.common.dto.PaymentIntentResponse;
 import com.meexora.common.response.ApiResponse;
 import com.meexora.paymentservice.service.PaymentService;
 import com.meexora.paymentservice.service.StripeWebhookService;
-import com.stripe.model.Event;
-import com.stripe.model.EventDataObjectDeserializer;
-import com.stripe.model.PaymentIntent;
-import com.stripe.net.Webhook;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,6 +43,13 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<PaymentIntentResponse>> createPaymentIntent(@RequestBody PaymentIntentRequest request) {
         PaymentIntentResponse response = paymentService.createPaymentFromBooking(request);
         return ResponseEntity.ok(ApiResponse.success("Payment intent: ", response));
+    }
+
+    @GetMapping("/intent")
+    public ResponseEntity<ApiResponse<PaymentIntentResponse>> getPaymentIntent(
+            @RequestParam("bookingId") UUID bookingId) {
+        PaymentIntentResponse intent = paymentService.getExistingPaymentIntent(bookingId);
+        return ResponseEntity.ok(ApiResponse.success("Retrieved existing intent", intent));
     }
 
 }

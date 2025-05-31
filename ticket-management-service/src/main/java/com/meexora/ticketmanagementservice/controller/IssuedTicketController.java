@@ -18,7 +18,6 @@ public class IssuedTicketController {
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<VerifiedTicketResponse>> verifyTicket(@RequestBody @Valid TicketValidationRequest request, @RequestHeader("X-User-Id") String userId) {
-        System.out.println("Here is the request");
         VerifiedTicketResponse response = ticketVerificationService.verifyTicket(request);
         return ResponseEntity.ok(ApiResponse.success("Ticket verified successfully", response));
     }

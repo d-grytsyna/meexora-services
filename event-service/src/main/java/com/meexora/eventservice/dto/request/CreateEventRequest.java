@@ -1,6 +1,7 @@
 package com.meexora.eventservice.dto.request;
 
 
+import com.meexora.eventservice.model.category.EventCategory;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,9 @@ public class CreateEventRequest {
         @NotBlank
         @Size(max = 255)
         private String title;
+
+        @NotNull
+        private EventCategory category;
 
         @NotBlank
         @Size(max = 10000)
@@ -36,6 +40,9 @@ public class CreateEventRequest {
 
         @Size(max = 500)
         private String address;
+
+        @Size(max = 500)
+        private String city;
 
         @NotNull
         @Min(1)

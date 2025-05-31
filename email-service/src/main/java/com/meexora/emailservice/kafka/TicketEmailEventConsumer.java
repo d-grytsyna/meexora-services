@@ -13,8 +13,6 @@ public class TicketEmailEventConsumer {
 
     @KafkaListener(topics = "${kafka.topic.ticket-email}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(TicketEmailMessage message) {
-        System.out.println("Tickets ready for account");
-        System.out.println("Received email: " + message.getUserEmail());
 
         mailService.sendTickets(message);
     }

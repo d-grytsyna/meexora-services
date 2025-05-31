@@ -21,4 +21,5 @@ public interface BookingMapper {
     TicketDto toTicketDto(Ticket ticket);
 
     List<TicketDto> toTicketDtoList(List<Ticket> tickets);
+    List<BookingResponse> toDtoList(List<Booking> bookings);
 }

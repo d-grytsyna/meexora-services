@@ -2,7 +2,6 @@ package com.meexora.bookingservice.controller;
 
 import com.meexora.bookingservice.dto.request.CreateBookingRequest;
 import com.meexora.bookingservice.dto.response.BookingResponse;
-import com.meexora.bookingservice.mapper.BookingMapper;
 import com.meexora.bookingservice.service.BookingService;
 import com.meexora.bookingservice.service.BookingWatchingService;
 import com.meexora.bookingservice.service.TicketAvailabilityService;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -45,5 +45,11 @@ public class BookingController {
     public ResponseEntity<ApiResponse<Boolean>> checkAvailability(@RequestParam("eventId") String eventId) {
         boolean available = ticketAvailabilityService.checkTicketAvailability(eventId);
         return ResponseEntity.ok(ApiResponse.success("There are available tickets", available));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getMyBookings(@RequestHeader("X-User-Id") String userId) {
+        List<BookingResponse> myBookings = bookingService.getMyBookings(userId);
+        return ResponseEntity.ok(ApiResponse.success("Created bookings", myBookings));
     }
 }

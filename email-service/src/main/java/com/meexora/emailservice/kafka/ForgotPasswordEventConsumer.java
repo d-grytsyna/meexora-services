@@ -14,8 +14,6 @@ public class ForgotPasswordEventConsumer {
 
     @KafkaListener(topics = "${kafka.topic.user-forgot-password-request}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(AccountVerificationMessage message) {
-        System.out.println("Received email: " + message.getEmail());
-        System.out.println("Received code: " + message.getVerificationCode());
         mailService.sendForgotPasswordEmail(message.getEmail(), message.getVerificationCode());
     }
 }

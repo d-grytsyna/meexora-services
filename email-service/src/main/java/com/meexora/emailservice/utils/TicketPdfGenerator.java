@@ -34,7 +34,7 @@ public class TicketPdfGenerator {
         document.add(new Paragraph("Event: " + eventTitle, textFont));
         document.add(new Paragraph("Location: " + location, textFont));
         document.add(new Paragraph("Date: " + dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), textFont));
-        document.add(new Paragraph("Price: " + price + " UAH", textFont));
+        document.add(new Paragraph("Price: " + price + " €", textFont));
         document.add(new Paragraph(" "));
 
         // Generate QR code

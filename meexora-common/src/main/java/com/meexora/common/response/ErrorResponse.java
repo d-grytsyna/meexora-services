@@ -2,7 +2,6 @@ package com.meexora.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
 

@@ -17,7 +17,6 @@ public class EventCreatedProducer {
     private String eventCreatedTopic;
 
     public void sendEventCreated(EventCreatedMessage message) {
-        System.out.println("Sending event created to topic: " + eventCreatedTopic);
         kafkaTemplate.send(eventCreatedTopic, message);
     }
 }

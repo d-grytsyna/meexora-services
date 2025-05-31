@@ -14,8 +14,6 @@ public class RegistrationEventConsumer {
 
     @KafkaListener(topics = "${kafka.topic.user-registration-request}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(AccountVerificationMessage message) {
-        System.out.println("Received email: " + message.getEmail());
-        System.out.println("Received code: " + message.getVerificationCode());
         mailService.sendVerificationEmail(message.getEmail(), message.getVerificationCode());
     }
 }

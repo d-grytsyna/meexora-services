@@ -19,7 +19,6 @@ public class StripeWebhookService {
 
     public void processWebhook(String payload, String signatureHeader, String webhookSecret) throws IOException {
         Event event = verifySignature(payload, signatureHeader, webhookSecret);
-        System.out.println("Webhook verified: " + event.getType());
 
         if ("payment_intent.succeeded".equals(event.getType())) {
             String paymentIntentId = extractPaymentIntentId(event, payload);
@@ -31,7 +30,6 @@ public class StripeWebhookService {
         try {
             return Webhook.constructEvent(payload, signatureHeader, webhookSecret);
         } catch (Exception e) {
-            System.out.println("Invalid webhook signature: " + e.getMessage());
             throw new SecurityException("Invalid signature");
         }
     }

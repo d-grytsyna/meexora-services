@@ -43,4 +43,4 @@ kafka:
 
 security:
   hmac:
-    secret: your-very-secure-secret
+    secret: ${HMAC_SECRET}
