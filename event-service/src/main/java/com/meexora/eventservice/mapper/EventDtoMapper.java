@@ -2,6 +2,7 @@ package com.meexora.eventservice.mapper;
 
 
 import com.meexora.eventservice.dto.request.CreateEventRequest;
+import com.meexora.eventservice.dto.response.EventEditResponse;
 import com.meexora.eventservice.dto.response.EventResponse;
 import com.meexora.eventservice.model.Event;
 import org.mapstruct.*;
@@ -22,5 +23,5 @@ public interface EventDtoMapper {
         return event;
     }
     EventResponse toResponse(Event entity);
-
+    EventEditResponse toEditResponse(Event entity);
 }

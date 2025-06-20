@@ -6,7 +6,6 @@ import com.meexora.authservice.dto.request.PasswordResetRequest;
 import com.meexora.authservice.dto.response.AuthResponse;
 import com.meexora.authservice.exception.EmailRequestRateLimitException;
 import com.meexora.authservice.kafka.ForgotPasswordEventProducer;
-import com.meexora.authservice.model.Role;
 import com.meexora.authservice.model.User;
 import com.meexora.authservice.repository.UserRepository;
 import com.meexora.authservice.utils.VerificationCodeGenerator;
@@ -107,7 +106,6 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(user);
         return new AuthResponse(accessToken, refreshToken);
     }
-
 
 }
 

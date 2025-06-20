@@ -34,6 +34,11 @@ public class BookingController {
         BookingResponse booking = bookingWatchingService.createWatchingBooking(request, userId, email);
         return ResponseEntity.ok(ApiResponse.success("Ticket monitoring created successfully", booking));
     }
+    @DeleteMapping("/watching/{id}/delete")
+    public ResponseEntity<ApiResponse<Boolean>> removeWatchingBooking(@RequestHeader("X-User-Id") String userId, @PathVariable("id") String bookingId) {
+        Boolean isDeleted = bookingWatchingService.removeWatchingBooking(userId, bookingId);
+        return ResponseEntity.ok(ApiResponse.success("Monitoring successfully removed", isDeleted));
+    }
 
     @PostMapping("/{id}/payment-intent")
     public ResponseEntity<ApiResponse<BookingResponse>> createPaymentIntentRetry(@PathVariable("id") UUID id) {

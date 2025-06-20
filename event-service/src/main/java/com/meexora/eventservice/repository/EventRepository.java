@@ -19,8 +19,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findAllByCreatorId(UUID creatorId);
     List<Event> findAllByDynamicPricingEnabledIsTrueAndDateAfter(OffsetDateTime time);
 
-    Page<Event> findByCityIgnoreCase(String city, Pageable pageable);
-    Page<Event> findByCityIgnoreCaseAndCategory(String city, EventCategory category, Pageable pageable);
+    Page<Event> findByCityIgnoreCaseAndDateAfter(String city, OffsetDateTime now, Pageable pageable);
+
+    Page<Event> findByCityIgnoreCaseAndCategoryAndDateAfter(String city, EventCategory category, OffsetDateTime now, Pageable pageable);
 
     @Query(value = """
     SELECT e.*, 
@@ -28,7 +29,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) AS distance 
     FROM events e 
-    WHERE (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
+    WHERE e.date > NOW()
+      AND (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) < :distance
     ORDER BY distance
@@ -36,7 +38,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             countQuery = """
     SELECT count(*) 
     FROM events e 
-    WHERE (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
+    WHERE e.date > NOW()
+      AND (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) < :distance
     """,
@@ -54,8 +57,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) AS distance 
     FROM events e 
-    WHERE e.category = :category AND
-          (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
+    WHERE e.category = :category 
+      AND e.date > NOW()
+      AND (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) < :distance
     ORDER BY distance
@@ -63,8 +67,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             countQuery = """
     SELECT count(*) 
     FROM events e 
-    WHERE e.category = :category AND
-          (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
+    WHERE e.category = :category 
+      AND e.date > NOW()
+      AND (6371 * acos(cos(radians(:latitude)) * cos(radians(e.latitude)) * 
            cos(radians(e.longitude) - radians(:longitude)) + 
            sin(radians(:latitude)) * sin(radians(e.latitude)))) < :distance
     """,
@@ -76,5 +81,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("category") String category,
             Pageable pageable
     );
+
 
 }

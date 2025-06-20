@@ -11,6 +11,8 @@ import com.meexora.ticketmanagementservice.utils.QrCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class TicketVerificationService {
@@ -35,4 +37,11 @@ public class TicketVerificationService {
                 .userName(issuedTicket.getUserName())
                 .build();
     }
+
+    public int countValidatedTickets(UUID eventId) {
+        int count =  ticketRepository.countByEventIdAndStatus(eventId, IssuedTicketStatus.VALIDATED);
+        System.out.println("COUNT " + count);
+        return count;
+    }
+
 }

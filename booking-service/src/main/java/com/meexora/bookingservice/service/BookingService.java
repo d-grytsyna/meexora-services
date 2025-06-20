@@ -6,6 +6,8 @@ import com.meexora.bookingservice.dto.request.CreateBookingRequest;
 import com.meexora.bookingservice.exception.InsufficientTicketsException;
 import com.meexora.bookingservice.kafka.BookingConfirmedProducer;
 import com.meexora.bookingservice.kafka.BookingRefundedProducer;
+import com.meexora.bookingservice.kafka.EditEventEmailProducer;
+import com.meexora.bookingservice.kafka.WatchingBookingUpdateProducer;
 import com.meexora.common.dto.PaymentIntentRequest;
 import com.meexora.bookingservice.dto.response.BookingResponse;
 import com.meexora.bookingservice.mapper.BookingMapper;
@@ -23,16 +25,19 @@ import com.meexora.common.dto.TicketDto;
 import com.meexora.common.exception.ExternalServiceException;
 import com.meexora.common.exception.NotFoundException;
 import com.meexora.common.exception.ServiceUnavailableException;
+import com.meexora.common.kafka.EventEditedMessage;
+import com.meexora.common.kafka.NotifyUsersEventEditedMessage;
 import com.meexora.common.kafka.PaymentStatusUpdateMessage;
 import com.meexora.common.kafka.TicketGenerationMessage;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -48,8 +53,8 @@ public class BookingService {
     private final PaymentServiceClient paymentServiceClient;
     private final BookingTempService bookingTempService;
     private final BookingMapper bookingMapper;
-
-
+    private final WatchingBookingUpdateProducer watchingBookingUpdateProducer;
+    private final EditEventEmailProducer editEventEmailProducer;
     public BookingResponse createBooking(CreateBookingRequest request, String userId, String email) {
 
         // Get the information about the chosen event from the event-service
@@ -181,5 +186,130 @@ public class BookingService {
         List<Booking> bookings = bookingRepository.findAllByUserId(UUID.fromString(userId));
         return bookingMapper.toDtoList(bookings);
     }
+
+    public void convertWatchingToBooking(UUID bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+
+        if (!booking.getStatus().equals(BookingStatus.WATCHING)) {
+            throw new IllegalStateException("Booking is not in WATCHING state");
+        }
+
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime expiresAt = now.plusMinutes(60);
+        OffsetDateTime paymentExpiresAt = now.plusMinutes(60);
+
+        booking.setStatus(BookingStatus.RESERVED);
+        booking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.RESERVED));
+        booking.setExpiresAt(expiresAt);
+        booking.setPaymentExpiresAt(paymentExpiresAt);
+        bookingRepository.save(booking);
+
+        bookingTempService.saveBookingExpiration(booking.getId(), true);
+
+        buildBookingResponseWithPaymentIntent(booking);
+    }
+    @Transactional
+    public void handleEventEdited(EventEditedMessage message) {
+        UUID eventId = message.getEventId();
+        List<Booking> bookings = bookingRepository.findAllByEventId(eventId);
+
+        Set<String> emailsToNotify = new HashSet<>();
+
+        for (Booking booking : bookings) {
+            boolean updated = false;
+
+            if (Boolean.TRUE.equals(message.getLocationChanged()) && message.getLocation() != null) {
+                booking.setEventLocation(message.getLocation());
+                updated = true;
+            }
+
+            if (Boolean.TRUE.equals(message.getDateTimeChanged()) && message.getDateTime() != null) {
+                OffsetDateTime newDateTime = OffsetDateTime.parse(message.getDateTime());
+                booking.setEventDateTime(newDateTime);
+                updated = true;
+            }
+
+
+            if (updated) {
+                booking.setUpdatedAt(Instant.now());
+
+                if (booking.getStatus() == BookingStatus.PAID) {
+                    emailsToNotify.add(booking.getUserEmail());
+                }
+            }
+        }
+
+        bookingRepository.saveAll(bookings);
+
+        if (!emailsToNotify.isEmpty()) {
+            NotifyUsersEventEditedMessage notifyMessage = new NotifyUsersEventEditedMessage(
+                    new ArrayList<>(emailsToNotify),
+                    message.getLocationChanged(),
+                    message.getLocation(),
+                    message.getDateTimeChanged(),
+                    message.getDateTime()
+            );
+
+            editEventEmailProducer.sendNotifyEventEdited(notifyMessage);
+        }
+
+
+        Integer addTickets = message.getAddTickets();
+        if (addTickets == null || addTickets <= 0) return;
+
+        int ticketDifference = addTickets;
+
+        List<Booking> watchingBookings = bookingRepository
+                .findAllByEventIdAndStatus(eventId, BookingStatus.WATCHING);
+
+        watchingBookings.sort(Comparator.comparing(Booking::getCreatedAt));
+
+        for (Booking watchingBooking : watchingBookings) {
+            int needed = watchingBooking.getTickets().size();
+
+            if (needed <= ticketDifference) {
+                ticketDifference -= needed;
+
+                convertWatchingToBooking(watchingBooking.getId());
+                List<TicketDto> ticketDtos = watchingBooking.getTickets().stream().map(
+                        t-> TicketDto.builder()
+                                .ticketId(t.getId())
+                                .userName(t.getUserName())
+                                .price(t.getPrice())
+                                .build()
+                ).toList();
+
+
+                TicketGenerationMessage ticketMessage = TicketGenerationMessage.builder()
+                        .bookingId(watchingBooking.getId())
+                        .eventId(eventId)
+                        .userId(watchingBooking.getUserId())
+                        .eventTitle(watchingBooking.getEventTitle())
+                        .eventAddress(watchingBooking.getEventLocation())
+                        .eventDate(watchingBooking.getEventDateTime())
+                        .userEmail(watchingBooking.getUserEmail())
+                        .tickets(ticketDtos)
+                        .status(BookingStatus.RESERVED.name())
+                        .totalPrice(watchingBooking.getTotalPrice())
+                        .build();
+
+                watchingBookingUpdateProducer.sendWatchingBookingUpdatedEvent(ticketMessage);
+                watchingBooking.setStatus(BookingStatus.RESERVED);
+                watchingBooking.getTickets().forEach(ticket -> ticket.setStatus(TicketStatus.RESERVED));
+                bookingRepository.save(watchingBooking);
+            }
+        }
+
+        if (ticketDifference > 0) {
+            TicketAvailability availability = ticketAvailabilityRepository
+                    .findByEventId(eventId)
+                    .orElseThrow(() -> new NotFoundException("Ticket availability not found"));
+
+            availability.setRemainingTickets(availability.getRemainingTickets() + ticketDifference);
+            ticketAvailabilityRepository.save(availability);
+        }
+    }
+
 }
 

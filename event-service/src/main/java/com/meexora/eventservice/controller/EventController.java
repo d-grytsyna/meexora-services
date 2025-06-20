@@ -3,6 +3,7 @@ package com.meexora.eventservice.controller;
 import com.meexora.common.dto.EventDetailsDto;
 import com.meexora.common.response.ApiResponse;
 import com.meexora.eventservice.dto.request.CreateEventRequest;
+import com.meexora.eventservice.dto.response.EventEditResponse;
 import com.meexora.eventservice.dto.response.EventResponse;
 import com.meexora.eventservice.dto.response.EventShortResponse;
 import com.meexora.eventservice.dto.response.PaginatedResponse;
@@ -29,11 +30,23 @@ public class EventController{
         return ResponseEntity.ok(ApiResponse.success("Event created successfully" , createdEvent));
     }
 
+    @PutMapping("/edit")
+    public ResponseEntity<ApiResponse<EventResponse>> createEvent(@RequestHeader("X-User-Id") UUID creatorId, @Valid @RequestBody EventEditResponse editEvent) {
+        EventResponse changedEvent = eventService.updateEvent(editEvent, creatorId);
+        return ResponseEntity.ok(ApiResponse.success("Event created successfully" , changedEvent));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EventDetailsDto>> getEventById(@PathVariable("id") UUID id) {
             EventDetailsDto dto = eventService.getEventDetails(id);
-            return ResponseEntity.ok(ApiResponse.success(dto));
+            return ResponseEntity.ok(ApiResponse.success("Fetched event" , dto));
+    }
+
+    @GetMapping("/management/{id}")
+    public ResponseEntity<ApiResponse<EventEditResponse>> getManagementEvent(@PathVariable("id") UUID id) {
+        EventEditResponse dto = eventService.getManagementEvent(id);
+        return ResponseEntity.ok(ApiResponse.success("Fetched event" , dto));
     }
 
     @GetMapping("/created")
@@ -41,6 +54,7 @@ public class EventController{
         List<EventResponse> events = eventService.getEventsByUserId(userId);
         return ResponseEntity.ok(ApiResponse.success("Your events: ", events));
     }
+
 
     @GetMapping("/public")
     public ResponseEntity<ApiResponse<PaginatedResponse<EventShortResponse>>> getEventsByCity(

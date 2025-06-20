@@ -1,6 +1,5 @@
 package com.meexora.eventservice.dto.response;
 
-
 import com.meexora.eventservice.model.category.EventCategory;
 import lombok.Data;
 
@@ -9,7 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
-public class EventResponse {
+public class EventEditResponse {
 
     private UUID id;
 
@@ -32,6 +31,8 @@ public class EventResponse {
     private String city;
 
     private Integer totalTickets;
+
+    private Integer addTickets = 0;
 
     private BigDecimal price;
 
