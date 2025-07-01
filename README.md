@@ -23,10 +23,12 @@ Apache Kafka with Zookeeper: for asynchronous message-based communication betwee
 
 Each microservice has its own Dockerfile, defining how the service is built and runs inside a container.
 The project includes a shared module meexora-common, which contains common DTOs, Kafka event models, error handling, and utilities. Before running Docker Compose, it's required to build all project modules using:
+
 mvn clean install
 
 For persistence, the PostgreSQL container runs with an initialization directory that contains SQL scripts to automatically create separate databases for each microservice on the first run. All data from PostgreSQL is persisted in a Docker volume pgdata to survive container restarts.
 To start the entire infrastructure, simply run:
+
 docker-compose up --build
 
 
