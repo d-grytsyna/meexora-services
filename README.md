@@ -17,8 +17,11 @@ System Architecture Diagram (C4 level 2)
 
 
 The system is based on a microservice architecture, where each service runs in its own isolated Docker container. In addition to core functional services, the environment includes supporting services for data storage and asynchronous communication:
+
 PostgreSQL: primary relational database;
+
 Redis: for caching and temporary data;
+
 Apache Kafka with Zookeeper: for asynchronous message-based communication between services.
 
 Each microservice has its own Dockerfile, defining how the service is built and runs inside a container.
