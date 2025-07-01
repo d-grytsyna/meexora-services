@@ -7,6 +7,7 @@ A microservice-based backend for a mobile application that enables users to crea
 - Spring Boot
 - Spring Cloud (Eureka, Gateway)
 - Apache Kafka
+- Stripe Connect
 - PostgreSQL
 - Redis
 - Docker & Docker Compose
@@ -19,25 +20,29 @@ System Architecture Diagram (C4 level 2)
 ![C4-lvl2 drawio](https://github.com/user-attachments/assets/14fc61a1-b3a2-4d3b-ac83-40fe9d6a623b)
 
 
+The system is based on a **microservice architecture**, where each service runs in its own isolated Docker container.
 
-The system is based on a microservice architecture, where each service runs in its own isolated Docker container. In addition to core functional services, the environment includes supporting services for data storage and asynchronous communication:
+In addition to the core functional services, the environment includes supporting services for data storage and asynchronous communication:
 
-PostgreSQL: primary relational database;
+- **PostgreSQL** — primary relational database.
+- **Redis** — caching and temporary data storage.
+- **Apache Kafka with Zookeeper** — asynchronous message-based communication between services.
 
-Redis: for caching and temporary data;
-
-Apache Kafka with Zookeeper: for asynchronous message-based communication between services.
 
 Each microservice has its own Dockerfile, defining how the service is built and runs inside a container.
-The project includes a shared module meexora-common, which contains common DTOs, Kafka event models, error handling, and utilities. Before running Docker Compose, it's required to build all project modules using:
+The project includes a shared module meexora-common, which contains common DTOs, Kafka event models, error handling, and utilities.
+Before running Docker Compose, it is required to build all project modules by running the following command at the root of the project:
 
+```bash
 mvn clean install
+```
 
 For persistence, the PostgreSQL container runs with an initialization directory that contains SQL scripts to automatically create separate databases for each microservice on the first run. All data from PostgreSQL is persisted in a Docker volume pgdata to survive container restarts.
 To start the entire infrastructure, simply run:
 
+```bash
 docker-compose up --build
-
+```
 
 
 
