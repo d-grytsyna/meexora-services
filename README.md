@@ -2,13 +2,21 @@
 A microservice-based backend for a mobile application that enables users to create, manage, and attend local events. The system supports dynamic ticket pricing, payments, and ticket monitoring. The app allows organizers and attendees to create events, register, and manage ticket sales.
 
 Tech Stack
+
 Java 21
+
 Spring Boot
+
 Spring Cloud (Eureka, Gateway)
+
 Apache Kafka
+
 PostgreSQL
+
 Redis
+
 Docker & Docker Compose
+
 Maven
 
 System Architecture Diagram (C4 level 2)
