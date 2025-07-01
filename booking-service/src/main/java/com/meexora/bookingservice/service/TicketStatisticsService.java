@@ -77,7 +77,4 @@ public class TicketStatisticsService {
         return new SalesStatsResponse(perDay, totalCount, totalSum);
     }
 
-
-
-
 }

@@ -35,6 +35,7 @@ eureka:
 kafka:
   topic:
     event-created: event-created
+    event-edited: event-edited
 
 client:
   booking-service:

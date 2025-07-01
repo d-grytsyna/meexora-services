@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -159,5 +160,13 @@ public class BookingWatchingService {
     }
 
 
+    public boolean removeWatchingBooking(String userId, String bookingId) {
+        Optional<Booking> optional = bookingRepository.findByIdAndUserId(UUID.fromString(bookingId), UUID.fromString(userId));
+        if (optional.isEmpty()) {
+            return false;
+        }
+        bookingRepository.delete(optional.get());
+        return true;
+    }
 
 }

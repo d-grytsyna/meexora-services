@@ -1,6 +1,7 @@
 package com.meexora.emailservice.service;
 
 import com.meexora.common.dto.EmailTicketDto;
+import com.meexora.common.kafka.NotifyUsersEventEditedMessage;
 import com.meexora.common.kafka.TicketEmailMessage;
 import com.meexora.common.kafka.TicketGenerationMessage;
 import com.meexora.emailservice.utils.TicketPdfGenerator;
@@ -14,6 +15,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -157,7 +162,7 @@ public class MailService {
                     "Good news!\n\n" +
                             "Tickets for the event \"" + message.getEventTitle() + "\" have become available.\n" +
                             "Your monitored booking has been successfully confirmed and reserved.\n\n" +
-                            "You now have limited time (e.g. 30 minutes) to complete the payment before your reservation expires.\n" +
+                            "You now have limited time - 60 minutes to complete the payment before your reservation expires.\n" +
                             "Please visit Meexora and complete the payment to secure your tickets.\n\n" +
                             "— Meexora Team";
 
@@ -169,4 +174,47 @@ public class MailService {
         }
     }
 
+    public void sendEventUpdatedEmails(NotifyUsersEventEditedMessage message) {
+        String subject = "Event Updated Notification";
+
+        StringBuilder contentBuilder = new StringBuilder("Dear user,\n\n");
+        contentBuilder.append("The event you booked has been updated.\n\n");
+
+        if (Boolean.TRUE.equals(message.getLocationChanged()) && message.getLocation() != null) {
+            contentBuilder.append("New Location: ").append(message.getLocation()).append("\n");
+        }
+
+        if (Boolean.TRUE.equals(message.getDateTimeChanged()) && message.getDateTime() != null) {
+            try {
+                OffsetDateTime dateTime = OffsetDateTime.parse(message.getDateTime());
+                String formattedDate = dateTime.format(
+                        DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm", Locale.ENGLISH)
+                );
+                contentBuilder.append("New Date & Time: ").append(formattedDate).append("\n");
+            } catch (Exception e) {
+                contentBuilder.append("New Date & Time: ").append(message.getDateTime()).append("\n");
+            }
+        }
+
+        contentBuilder.append("\nPlease check your app for the latest event details.\n\n");
+        contentBuilder.append("Best regards,\nWanderly Team");
+
+        String finalContent = contentBuilder.toString();
+
+        for (String email : message.getUserEmails()) {
+            sendSimpleEmail(email, subject, finalContent);
+        }
+    }
+
+    private void sendSimpleEmail(String to, String subject, String text) {
+        try {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(to);
+            mailMessage.setSubject(subject);
+            mailMessage.setText(text);
+            mailSender.send(mailMessage);
+        } catch (Exception e) {
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+        }
+    }
 }

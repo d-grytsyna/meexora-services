@@ -45,158 +45,158 @@ services:
     command: ["redis-server", "--notify-keyspace-events", "Ex"]
 
 
-  discovery-service:
-    build:
-      context: ./discovery-service
-    container_name: discovery-service
-    ports:
-      - "8761:8761"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - default
+#  discovery-service:
+#    build:
+#      context: ./discovery-service
+#    container_name: discovery-service
+#    ports:
+#      - "8761:8761"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#    networks:
+#      - default
 
 
-
-
-  auth-service:
-    build:
-      context: ./auth-service
-    container_name: meexora-auth
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-      - kafka
-      - redis
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - default
-
-  booking-service:
-    build:
-      context: ./booking-service
-    container_name: booking-service
-    ports:
-      - "8085:8085"
-    depends_on:
-      - postgres
-      - kafka
-      - redis
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - default
-
-  email-service:
-    build:
-      context: ./email-service
-    container_name: email-service
-    ports:
-      - "8082:8082"
-    depends_on:
-      - kafka
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      EMAIL_PASSWORD:  ${EMAIL_PASSWORD}
-    networks:
-      - default
-
-  event-service:
-    build:
-      context: ./event-service
-    container_name: event-service
-    ports:
-      - "8084:8084"
-    depends_on:
-      - postgres
-      - kafka
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - default
-
-  payment-service:
-    build:
-      context: ./payment-service
-    container_name: payment-service
-    ports:
-      - "8086:8086"
-    depends_on:
-      - postgres
-      - kafka
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-    networks:
-      - default
-
-  ticket-management-service:
-    build:
-      context: ./ticket-management-service
-    container_name: ticket-management-service
-    ports:
-      - "8087:8087"
-    depends_on:
-      - postgres
-      - kafka
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      HMAC_SECRET: ${HMAC_SECRET}
-    networks:
-      - default
-
-  user-service:
-    build:
-      context: ./user-service
-    container_name: user-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - postgres
-      - discovery-service
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - default
-
-  gateway-service:
-    build:
-      context: ./gateway-service
-    container_name: gateway-service
-    ports:
-      - "8080:8080"
-    depends_on:
-      discovery-service:
-        condition: service_healthy
-      auth-service:
-        condition: service_started
-      user-service:
-        condition: service_started
-      booking-service:
-        condition: service_started
-      ticket-management-service:
-        condition: service_started
-      event-service:
-        condition: service_started
-      payment-service:
-        condition: service_started
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - default
+#
+#
+#  auth-service:
+#    build:
+#      context: ./auth-service
+#    container_name: meexora-auth
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - redis
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    networks:
+#      - default
+#
+#  booking-service:
+#    build:
+#      context: ./booking-service
+#    container_name: booking-service
+#    ports:
+#      - "8085:8085"
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - redis
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    networks:
+#      - default
+#
+#  email-service:
+#    build:
+#      context: ./email-service
+#    container_name: email-service
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - kafka
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#      EMAIL_PASSWORD:  ${EMAIL_PASSWORD}
+#    networks:
+#      - default
+#
+#  event-service:
+#    build:
+#      context: ./event-service
+#    container_name: event-service
+#    ports:
+#      - "8084:8084"
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    networks:
+#      - default
+#
+#  payment-service:
+#    build:
+#      context: ./payment-service
+#    container_name: payment-service
+#    ports:
+#      - "8086:8086"
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+#      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
+#      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+#    networks:
+#      - default
+#
+#  ticket-management-service:
+#    build:
+#      context: ./ticket-management-service
+#    container_name: ticket-management-service
+#    ports:
+#      - "8087:8087"
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#      HMAC_SECRET: ${HMAC_SECRET}
+#    networks:
+#      - default
+#
+#  user-service:
+#    build:
+#      context: ./user-service
+#    container_name: user-service
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - postgres
+#      - discovery-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    networks:
+#      - default
+#
+#  gateway-service:
+#    build:
+#      context: ./gateway-service
+#    container_name: gateway-service
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      discovery-service:
+#        condition: service_healthy
+#      auth-service:
+#        condition: service_started
+#      user-service:
+#        condition: service_started
+#      booking-service:
+#        condition: service_started
+#      ticket-management-service:
+#        condition: service_started
+#      event-service:
+#        condition: service_started
+#      payment-service:
+#        condition: service_started
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    networks:
+#      - default
 
 
 volumes:

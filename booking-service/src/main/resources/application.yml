@@ -54,3 +54,5 @@ kafka:
     booking-confirmed: booking-confirmed
     booking-refund: booking-refund
     watching-booking-update: watching-booking-update
+    event-edited: event-edited
+    notify-event-edited: notify-event-edited
