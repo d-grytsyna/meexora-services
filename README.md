@@ -12,6 +12,8 @@ Docker & Docker Compose
 Maven
 
 System Architecture Diagram (C4 level 2)
+
+
 ![C4-lvl2 drawio](https://github.com/user-attachments/assets/14fc61a1-b3a2-4d3b-ac83-40fe9d6a623b)
 
 
